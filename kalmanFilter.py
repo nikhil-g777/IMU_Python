@@ -88,7 +88,7 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     y = lfilter(b, a, data)
     return y
 
-# y = butter_bandpass_filter(filtered_accelerometer_z[offset:], 0.1, 0.2, fs, 3)
+# y = butter_bandpass_filter(lowpass_measured_z, 0.1, 0.32, fs, 1)
 # fig1, ax1 = plt.subplots()
 # ax1.plot(counters, y)
 # plt.show()
@@ -114,6 +114,38 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
 ######################################################################
 
 
+#######################   threshold detector   #######################
+threshold_readings = []
+threshold_indexes = []
+threshold = 0.07
+width_threshold = 15
+recording = False
+startIndex = 0
+currentIndex = 0
+minimum_duration = 10
+recordings = []
+for index, sensor_reading in enumerate(lowpass_measured_z):
+    index += offset
+    if sensor_reading > threshold:
+        if not recording:
+            recording = True
+            startIndex = index
+            currentIndex = index
+        else:
+            threshold_readings.append(sensor_reading)
+            threshold_indexes.append(index)
+            currentIndex = index
+    else:
+        if recording:
+            if (index - currentIndex) > width_threshold:
+                recording = False
+                if index-startIndex > minimum_duration:
+                    recordings.append((index - startIndex)*19)
+
+print(recordings)
+plt.plot(threshold_indexes, threshold_readings, "ob")
+
+######################################################################
 
 
 plt.plot(counters, lowpass_measured_z, color="red")

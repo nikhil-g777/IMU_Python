@@ -33,7 +33,7 @@ while 1:
         timer += 1
         message = str(message).split(",")
         accelerometer_readings = []
-        if timer > 3000:
+        if timer > 1000:
             break
         for index, val in enumerate(message):
             val = val.strip()
